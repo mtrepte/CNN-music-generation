@@ -73,19 +73,46 @@ def make_key_c(lines):
 
 	return lines
 
+def remove_left_hand(lines):
+	in_note = False
+	new_lines = []
+	note_lines = []
+	staff = -1
+
+	for line in lines:
+		if '<note' in line:
+			in_note = True
+			note_lines = []
+			staff = -1
+
+		if in_note:
+			note_lines.append(line)
+			if '<staff>' in line and '</staff>' in line:
+				staff = int(line.strip()[7:-8].strip())
+		else:
+			new_lines.append(line)
+			
+		if '</note>' in line:
+			if staff == 1:
+				new_lines.extend(note_lines)
+			in_note = False
+
+	return new_lines
+
+
 def standardize_musicXML_key(filename):
 	file = open('samples/' + filename,'r')
 	lines = file.readlines()
 	file.close()
 	lines = make_key_c(lines)
+	lines = remove_left_hand(lines)
 
 	path = 'standardized/' + filename[:-4] + '_standardized.xml'
 	open(path, 'w').close()
 	new_file = open(path, 'w')
 	for line in lines:
 		new_file.write(line)
-	new_file.close
-
+	new_file.close()
 
 filename = 'MozartPianoSonata.xml'
 standardize_musicXML_key(filename)
