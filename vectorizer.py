@@ -8,6 +8,8 @@ def vectorize(filename):
 	in_note = False; in_chord = False; in_grace = False
 	sequence = ''; chord_str = ''
 	duration = 0; prev_duration = 0
+	image = []
+	step_keys = []
 
 	for line in lines:
 		if '<note' in line:
@@ -36,20 +38,36 @@ def vectorize(filename):
 
 			if '</note>' in line:
 				in_note = False
-				pitch = str(3 + (octave - 1) * 12 + note_to_index[step])
+				pitch = 3 + (octave - 1) * 12 + note_to_index[step]
 				if not in_chord:
 					for i in range(prev_duration):
 						if i == 0:
 							sequence += ' ' + chord_str
 						else:
 							sequence += '-' + chord_str
-					chord_str = pitch
+						image.append([0 for _ in range(88)]) # Assuming 88 keys
+						for key in step_keys:
+							image[len(image) - 1][key] = 1
+
+					chord_str = str(pitch)
+					step_keys = []
 				else:
-					chord_str += '|' + pitch
+					chord_str += '|' + str(pitch)
+				step_keys.append(pitch)
 
-	sequence += chord_str
+	for i in range(prev_duration):
+		if i == 0:
+			sequence += ' ' + chord_str
+		else:
+			sequence += '-' + chord_str
+	chord_str = pitch
+	sequence = sequence[1:]
 
-	return sequence[1:]
+	return sequence, image
 
 filename = 'MozartPianoSonata_standardized.xml'
-print(vectorize(filename))
+sequence, image = vectorize(filename)
+# print(sequence)
+# for row in image:
+# 	print(row[50:-15])
+
