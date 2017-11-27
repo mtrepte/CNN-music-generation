@@ -1,3 +1,6 @@
+from os import listdir
+from os.path import isfile, join
+
 def get_key_and_offset(lines):
 	fifth_to_key_major = {0:'C_maj', 1:'G_maj', 2:'D_maj', 3:'A_maj', 4:'E_maj', 5:'B_maj', 6:'G_flat_maj', 
 						7:'D_flat_maj', 8:'A_flat_maj', 9:'E_flat_maj', 10:'B_flat_maj', 11:'F_maj'}
@@ -6,6 +9,7 @@ def get_key_and_offset(lines):
 
 	in_key = False
 	mode = 'major'
+	fifth = 0
 	for line in lines:
 		if '<key>' in line:
 			in_key = True
@@ -100,19 +104,21 @@ def remove_left_hand(lines):
 	return new_lines
 
 
-def standardize_musicXML_key(filename):
-	file = open('samples/' + filename,'r')
+def standardize_musicXML_key(path, filename):
+	file = open('xml-collection/' + filename,'r')
 	lines = file.readlines()
 	file.close()
 	lines = make_key_c(lines)
 	lines = remove_left_hand(lines)
 
 	path = 'standardized/' + filename[:-4] + '_standardized.xml'
-	open(path, 'w').close()
+	open(path, 'w').close() # clear file
 	new_file = open(path, 'w')
 	for line in lines:
 		new_file.write(line)
 	new_file.close()
 
-filename = 'F_Major.xml'
-standardize_musicXML_key(filename)
+path = 'xml-collection/'
+filenames = [f for f in listdir(path) if isfile(join(path, f))]
+for filename in filenames:
+	standardize_musicXML_key(path, filename)

@@ -1,16 +1,22 @@
-def vectorize(filename):
-	file = open('standardized/' + filename,'r')
+from os import listdir
+from os.path import isfile, join
+
+def vectorize(path, filename):
+	file = open(path + filename,'r')
 	lines = file.readlines()
 	file.close()
 
-	note_to_index = {'C':0, 'C_sharp':1, 'D':2, 'D_sharp':3, 'E':4, 'F':5, 'F_sharp':6,
-						'G':7, 'G_sharp':8, 'A':9, 'A_sharp':10, 'B':11}
+	note_to_index = {'B_sharp': 0, 'C':0, 'C_sharp':1, 'D':2, 'D_sharp':3, 'E':4, 'E_sharp':5, 'F':5, 'F_sharp':6, 'G':7,
+						'G_sharp':8, 'A':9, 'A_sharp':10, 'B':11}
 	in_note = False; in_chord = False; in_grace = False; in_rest = False
 	sequence = ''; chord_str = ''
 	duration = 0; prev_duration = 0
 	image = []
 	step_keys = []
 	divisions = 4
+	octave = 5
+	step = 'C'
+	pitch = 0
 
 	for line in lines:
 		if '<divisions>' and '</divisions>' in line:
@@ -76,6 +82,20 @@ def vectorize(filename):
 
 	return sequence, image
 
-filename = 'MozartPianoSonata_standardized.xml'
-sequence, image = vectorize(filename)
+def dump(path, filename, text):
+	open(path + filename, 'w').close() # clear file
+	f = open(path + filename, 'w+')
+	f.write(text)
+	f.close()
+
+path = 'standardized/'
+filename = 'Bumblebee_standardized.xml'
+filenames = [f for f in listdir(path) if isfile(join(path, f))]
+sequence, img = vectorize(path, filename)
 print(sequence)
+# total_sequences = ''
+# for filename in filenames:
+# 	sequence, img = vectorize(path, filename)
+# 	total_sequences += sequence + ' '
+
+#dump('LSTM/data/', 'seqs.txt', total_sequences)
