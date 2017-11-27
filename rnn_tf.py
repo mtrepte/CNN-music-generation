@@ -132,7 +132,7 @@ if len(sys.argv)==3:
 
 ## Load the data
 data_ = ""
-with open('data/seqs.txt', 'r') as f:
+with open('seqs.txt', 'r') as f:
 	data_ += f.read()
 data_ = data_.lower()
 
