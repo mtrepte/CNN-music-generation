@@ -5,6 +5,7 @@ def get_key_and_offset(lines):
 						7:'B_flat_min', 8:'F_min', 9:'C_min', 10:'G_min', 11:'D_min'}
 
 	in_key = False
+	mode = 'major'
 	for line in lines:
 		if '<key>' in line:
 			in_key = True
@@ -38,7 +39,7 @@ def get_key_and_offset(lines):
 def make_key_c(lines):
 	_, offset = get_key_and_offset(lines)
 
-	note_to_index = {'C':0, 'C_sharp':1, 'D':2, 'D_sharp':3, 'E':4, 'F':5, 'F_sharp':6, 'G':7,
+	note_to_index = {'B_sharp': 0, 'C':0, 'C_sharp':1, 'D':2, 'D_sharp':3, 'E':4, 'E_sharp':5, 'F':5, 'F_sharp':6, 'G':7,
 						'G_sharp':8, 'A':9, 'A_sharp':10, 'B':11}
 	index_to_note = {v: k for k, v in note_to_index.items()}
 
@@ -59,7 +60,6 @@ def make_key_c(lines):
 			index = (note_to_index[note] - offset) % 12
 			note = index_to_note[index]
 			if '_sharp' in note:
-				print("_sharp")
 				lines[i - 1] = '          <alter>1</alter>\n'
 				lines[i - 2] = '          <step>' + note[0] + '</step>\n'
 			else:
@@ -77,13 +77,13 @@ def remove_left_hand(lines):
 	in_note = False
 	new_lines = []
 	note_lines = []
-	staff = -1
+	staff = 1
 
 	for line in lines:
 		if '<note' in line:
 			in_note = True
 			note_lines = []
-			staff = -1
+			staff = 1
 
 		if in_note:
 			note_lines.append(line)
@@ -114,5 +114,5 @@ def standardize_musicXML_key(filename):
 		new_file.write(line)
 	new_file.close()
 
-filename = 'MozartPianoSonata.xml'
+filename = 'F_Major.xml'
 standardize_musicXML_key(filename)

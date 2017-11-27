@@ -5,24 +5,31 @@ def vectorize(filename):
 
 	note_to_index = {'C':0, 'C_sharp':1, 'D':2, 'D_sharp':3, 'E':4, 'F':5, 'F_sharp':6,
 						'G':7, 'G_sharp':8, 'A':9, 'A_sharp':10, 'B':11}
-	in_note = False; in_chord = False; in_grace = False
+	in_note = False; in_chord = False; in_grace = False; in_rest = False
 	sequence = ''; chord_str = ''
 	duration = 0; prev_duration = 0
 	image = []
 	step_keys = []
+	divisions = 4
 
 	for line in lines:
+		if '<divisions>' and '</divisions>' in line:
+			divisions = int(line.strip()[11:-12].strip())
+
 		if '<note' in line:
 			in_note = True
 			in_chord = False
 			has_alter = False
 			in_grace = False
+			in_rest = False
 
 		if '<grace/>' in line:
 			in_grace = True
 
 		if not in_grace:
 			if in_note:
+				if '<rest/>' in line:
+					in_rest = True
 				if '<chord/>' in line:
 					in_chord = True
 				if '<step>' and '</step>' in line:
@@ -34,11 +41,15 @@ def vectorize(filename):
 					octave = int(line.strip()[8:-9].strip())
 				if '<duration>' and '</duration>' in line:
 					prev_duration = duration
-					duration = int(line.strip()[10:-11].strip()) // 2
+					duration = int(int(line.strip()[10:-11].strip()) / divisions * 4)
 
 			if '</note>' in line:
 				in_note = False
-				pitch = 3 + (octave - 1) * 12 + note_to_index[step]
+				if in_rest:
+					pitch = 0
+				else:	
+					pitch = 3 + (octave - 1) * 12 + note_to_index[step]
+
 				if not in_chord:
 					for i in range(prev_duration):
 						if i == 0:
@@ -55,7 +66,7 @@ def vectorize(filename):
 					chord_str += '|' + str(pitch)
 				step_keys.append(pitch)
 
-	for i in range(prev_duration):
+	for i in range(duration):
 		if i == 0:
 			sequence += ' ' + chord_str
 		else:
@@ -67,7 +78,4 @@ def vectorize(filename):
 
 filename = 'MozartPianoSonata_standardized.xml'
 sequence, image = vectorize(filename)
-# print(sequence)
-# for row in image:
-# 	print(row[50:-15])
-
+print(sequence)
