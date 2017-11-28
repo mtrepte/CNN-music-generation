@@ -150,7 +150,7 @@ time_steps = 100 #50
 
 NUM_TRAIN_BATCHES = 15000
 
-LEN_TEST_TEXT = 10000 # Number of test characters of text to generate after training the network
+LEN_TEST_TEXT = 100000 # Number of test characters of text to generate after training the network
 
 
 

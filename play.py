@@ -59,8 +59,9 @@ def play_note(chord, duration, key_sounds):
 	for note in chord:
 		note_sounds[int(note)].play(fade_ms=200)
 
-	duration_time = min([.5 * (duration / 4), 5])
-	time.sleep(duration_time)
+	# duration_time = min([.5 * (duration / 4), 5])
+	print(duration)
+	time.sleep(duration / 3)
 
 	# for note in chord:
 	# 	note_sounds[int(note)].fadeout(400)

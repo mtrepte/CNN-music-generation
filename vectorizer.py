@@ -6,6 +6,19 @@ def vectorize(path, filename):
 	lines = file.readlines()
 	file.close()
 
+	unique_chars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', 
+					'~', '=', '+', '[', ']', '{', '}', '.', ',', '<', 
+					'>', '?', '/', 'A', 'B', 'C', 'D', 'E', 'F', 
+					'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 
+					'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 
+					'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 
+					'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 
+					'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', 
+					'5', '6', '7', '8', '9', '0', ';', ':', '|']
+	index_to_char = {}
+	for i in range(len(unique_chars)):
+		index_to_char[i] = unique_chars[i]
+
 	note_to_index = {'B_sharp': 0, 'C':0, 'C_sharp':1, 'D':2, 'D_sharp':3, 'E':4, 'E_sharp':5, 'F':5, 'F_sharp':6, 'G':7,
 						'G_sharp':8, 'A':9, 'A_sharp':10, 'B':11}
 	in_note = False; in_chord = False; in_grace = False; in_rest = False
@@ -47,7 +60,7 @@ def vectorize(path, filename):
 					octave = int(line.strip()[8:-9].strip())
 				if '<duration>' and '</duration>' in line:
 					prev_duration = duration
-					duration = int(int(line.strip()[10:-11].strip()) / divisions * 4)
+					duration = int(float(line.strip()[10:-11].strip()) / divisions * 4)
 
 			if '</note>' in line:
 				in_note = False
@@ -66,10 +79,10 @@ def vectorize(path, filename):
 						for key in step_keys:
 							image[len(image) - 1][key] = 1
 
-					chord_str = str(pitch)
+					chord_str = str(index_to_char[pitch])
 					step_keys = []
 				else:
-					chord_str += '|' + str(pitch)
+					chord_str += str(index_to_char[pitch])
 				step_keys.append(pitch)
 
 	for i in range(duration):
@@ -88,14 +101,17 @@ def dump(path, filename, text):
 	f.write(text)
 	f.close()
 
-path = 'standardized/'
-filename = 'Bumblebee_standardized.xml'
-filenames = [f for f in listdir(path) if isfile(join(path, f))]
-sequence, img = vectorize(path, filename)
-print(sequence)
-# total_sequences = ''
-# for filename in filenames:
-# 	sequence, img = vectorize(path, filename)
-# 	total_sequences += sequence + ' '
+# # SPECIFIC FILE
+# filename = 'MozartPianoSonata_standardized.xml'
+# sequence, img = vectorize(path, filename)
+# print(sequence)
 
-#dump('LSTM/data/', 'seqs.txt', total_sequences)
+# ALL FILES IN DIR
+path = 'standardized/'
+filenames = [f for f in listdir(path) if isfile(join(path, f))]
+total_sequences = ''
+for filename in filenames:
+	sequence, img = vectorize(path, filename)
+	total_sequences += sequence + ' '
+
+dump('', 'seqs.txt', total_sequences)

@@ -38,10 +38,10 @@ def get_key_and_offset(lines):
 	else:
 		print('welp, mode not recognized!')
 
-	return key, offset
+	return key, offset, mode
 
 def make_key_c(lines):
-	_, offset = get_key_and_offset(lines)
+	_, offset, mode = get_key_and_offset(lines)
 
 	note_to_index = {'B_sharp': 0, 'C':0, 'C_sharp':1, 'D':2, 'D_sharp':3, 'E':4, 'E_sharp':5, 'F':5, 'F_sharp':6, 'G':7,
 						'G_sharp':8, 'A':9, 'A_sharp':10, 'B':11}
@@ -75,7 +75,7 @@ def make_key_c(lines):
 				pass
 			in_note = False
 
-	return lines
+	return lines, mode
 
 def remove_left_hand(lines):
 	in_note = False
@@ -106,10 +106,10 @@ def standardize_musicXML_key(path, filename):
 	file = open('xml-collection/' + filename,'r')
 	lines = file.readlines()
 	file.close()
-	lines = make_key_c(lines)
+	lines, mode = make_key_c(lines)
 	lines = remove_left_hand(lines)
 
-	path = 'standardized/' + filename[:-4] + '_standardized.xml'
+	path = 'standardized/' + filename[:-4] + '_standardized_' + mode + '.xml'
 	open(path, 'w').close() # clear file
 	new_file = open(path, 'w')
 	for line in lines:
