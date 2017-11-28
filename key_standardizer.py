@@ -100,9 +100,7 @@ def remove_left_hand(lines):
 			if staff == 1:
 				new_lines.extend(note_lines)
 			in_note = False
-
 	return new_lines
-
 
 def standardize_musicXML_key(path, filename):
 	file = open('xml-collection/' + filename,'r')
