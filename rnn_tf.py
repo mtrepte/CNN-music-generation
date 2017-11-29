@@ -118,7 +118,7 @@ def decode_embed(array, vocab):
 
 
 ckpt_file = ""
-TEST_PREFIX = "49-49-49-49 61-61-61-61 " # Prefix to prompt the network in test mode
+TEST_PREFIX = "AAAA " # Prefix to prompt the network in test mode
 
 print "Usage:"
 print '\t\t ', sys.argv[0], ' [ckpt model to load] [prefix, e.g., "The "]'
@@ -148,7 +148,7 @@ num_layers = 2
 batch_size = 64 #128
 time_steps = 100 #50
 
-NUM_TRAIN_BATCHES = 15000
+NUM_TRAIN_BATCHES = 150000
 
 LEN_TEST_TEXT = 100000 # Number of test characters of text to generate after training the network
 
@@ -201,6 +201,20 @@ if ckpt_file == "":
 			last_time = new_time
 
 			print "batch: ",i,"   loss: ",cst,"   speed: ",(100.0/diff)," batches / s"
+
+		if (i%3000 == 0):
+			TEST_PREFIX = TEST_PREFIX.lower()
+			for i in range(len(TEST_PREFIX)):
+				out = net.run_step( embed_to_vocab(TEST_PREFIX[i], vocab) , i==0)
+
+			print "SENTENCE:"
+			gen_str = TEST_PREFIX
+			for i in range(LEN_TEST_TEXT):
+				element = np.random.choice( range(len(vocab)), p=out ) # Sample character from the network according to the generated output probabilities
+				gen_str += vocab[element]
+
+				out = net.run_step( embed_to_vocab(vocab[element], vocab) , False )
+			print gen_str
 
 	saver.save(sess, "saved/model.ckpt")
 
