@@ -123,7 +123,7 @@ class Rest(Symbol):
         symbol.text = self.symbol
         return note
 
-seq = open('seqs.txt', 'r').read()
+seq = open('output3.txt', 'r').read()
 string_ls = seq.split(" ")
 
 header = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<!DOCTYPE score-partwise PUBLIC \"-//Recordare//DTD MusicXML 3.0 Partwise//EN\" \"http://www.musicxml.org/dtds/partwise.dtd\">\n"
@@ -173,7 +173,7 @@ def rest_filler(remainder):
     rest_str += "!"
     return rest_str
 
-def split(symbol, remainder):
+def split_note(symbol, remainder):
     # Needs fixing
     fill_len = symbol.get_duration()-remainder
     s = symbol.char_ls[0]
@@ -199,6 +199,7 @@ def chord_to_notes(chord, dur):
         note_str += note
         ls.append(note_str)
         note_str = ""
+    print(ls)
     return ls
 
 msr_dur = 16
@@ -207,14 +208,15 @@ curr_msr = m1
 curr_msr_num = 1
 for i in range(len(string_ls)):
     # remove last measure tag
-    tmp = Symbol(string_ls[i])
+    sym_str = string_ls[i].strip()
+    tmp = Symbol(sym_str)
     curr_dur += tmp.get_duration()
     if curr_dur == msr_dur:
         if tmp.char_ls[0] == "!": # rest
-            sym = Rest(string_ls[i]).to_xml()
+            sym = Rest(sym_str).to_xml()
             curr_msr.append(sym)
         elif len(tmp.char_ls[0]) == 1: # single note
-            sym = Note(string_ls[i]).to_xml()
+            sym = Note(sym_str).to_xml()
             curr_msr.append(sym)
         else: # chord
             note_ls = chord_to_notes(tmp.char_ls[0], tmp.get_duration())
@@ -229,20 +231,23 @@ for i in range(len(string_ls)):
         curr_dur = 0
     elif curr_dur < msr_dur:
         if tmp.char_ls[0] == "!": # rest
-            sym = Rest(string_ls[i]).to_xml()
+            sym = Rest(sym_str).to_xml()
             curr_msr.append(sym)
         elif len(tmp.char_ls[0]) == 1: # single note
-            sym = Note(string_ls[i]).to_xml()
+            sym = Note(sym_str).to_xml()
             curr_msr.append(sym)
         else: # chord
+            print(tmp.char_ls[0])
             note_ls = chord_to_notes(tmp.char_ls[0], tmp.get_duration())
-            sym = Note(note_ls[0]).to_xml()
-            curr_msr.append(sym)
-            for i in range(1, len(note_ls)):
-                sym = Note(note_ls[i]).to_xml(chord=True)
+            if len(note_ls) != 0:
+                sym = Note(note_ls[0]).to_xml()
                 curr_msr.append(sym)
+                for i in range(1, len(note_ls)):
+                    sym = Note(note_ls[i]).to_xml(chord=True)
+                    curr_msr.append(sym)
     else: # split
-        str1, str2 = split(tmp, curr_dur-msr_dur)
+        remainder = curr_dur-msr_dur
+        str1, str2 = split_note(tmp, remainder)
         if tmp.char_ls[0] == "!":
             sym1 = Rest(str1).to_xml()
             curr_msr.append(sym1)
@@ -273,7 +278,7 @@ for i in range(len(string_ls)):
             for i in range(1, len(note_ls)):
                 sym2 = Note(note_ls[i]).to_xml(chord=True)
                 curr_msr.append(sym2)
-        curr_dur = tmp2.get_duration()
+        curr_dur = remainder
         curr_msr.append(sym2)
     if i == len(string_ls) - 1 and curr_dur != msr_dur:
         sym = Rest(rest_filler(msr_dur-curr_dur)).to_xml()
